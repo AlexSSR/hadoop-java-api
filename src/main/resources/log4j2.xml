@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+	<appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} %L %M - %msg%xEx%n" />
+		</Console>
+		<!-- 添加过滤器ThresholdFilter,可以有选择的输出某个级别以上的类别 onMatch="ACCEPT" onMismatch="DENY"意思是匹配就接受,否则直接拒绝 -->
+		<RollingFile name="RollingERROR" fileName="logs/error.log" filePattern="logs/error-%d{MM-dd-yyyy}.log">
+			<ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY" />
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %class{36} %L %M - %msg%xEx%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+			<DefaultRolloverStrategy max="30"/>
+		</RollingFile>
+
+		<!-- 这个会打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档 -->
+		<RollingFile name="RollingINFO" fileName="logs/${sys:log4j.fileName}.log" filePattern="logs/$${date:yyyy-MM}/${sys:log4j.fileName}-%d{MM-dd-yyyy}-%i.log.gz">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %class{36} %L %M - %msg%xEx%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="512 MB"/>
+            </Policies>
+			<DefaultRolloverStrategy max="999">
+				<Delete basePath="logs" maxDepth="2">
+					<IfFileName glob="*/service-*.log.gz" />
+                    <IfAny>
+                        <IfAccumulatedFileSize exceeds="32 GB"/>
+                        <IfAccumulatedFileCount exceeds="999"/>
+                        <IfLastModified age="30d"/>
+                    </IfAny>
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+	</appenders>
+
+	<!-- 然后定义logger，只有定义了logger并引入的appender，appender才会生效 -->
+	<loggers>
+		<root level="debug">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingINFO" />
+			<appender-ref ref="RollingERROR" />
+		</root>
+	</loggers>
+</configuration>

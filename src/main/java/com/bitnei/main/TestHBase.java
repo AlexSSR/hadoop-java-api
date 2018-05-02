@@ -4,17 +4,15 @@ import com.bitnei.core.util.PropertiesUtil;
 import net.iharder.base64.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -47,10 +45,11 @@ public class TestHBase {
     }
 
     private static void write(List<String> vins) throws IOException {
+
         for (String vin : vins) {
+            Map<String, List<String>> res = new HashMap<>();
             String[] vidVin = vin.split(",");
 
-            FileWriter fileWriter = new FileWriter(properties.getProperty("result.file.path") + "/" + vidVin[1]);
             Table table = getTable("packet");
             Scan scan = new Scan();
             scan.setStartRow((vidVin[0] + "_" + properties.getProperty("start.row.timestamp")).getBytes());
@@ -61,29 +60,40 @@ public class TestHBase {
 
             ResultScanner scanner = table.getScanner(scan);
             for (Result result : scanner) {
-                Cell[] cells = result.rawCells();
+                String time = new String(result.getValue("cf".getBytes(), "stime".getBytes()));
+                byte[] data = result.getValue("cf".getBytes(), "data".getBytes());
 
-                StringBuilder res = new StringBuilder();
-                for (Cell cell : cells) {
-                    String qualifier = new String(CellUtil.cloneQualifier(cell));
-                    byte[] value = CellUtil.cloneValue(cell);
-                    if ("data".equals(qualifier)) {
-                        String s = Base64.encodeBytes(value);
-                        s = s.replaceAll("\n", "");
-                        res.append(s);
-                    } else {
-                        res.append(new String(value));
-                    }
-                    res.append(",");
+                StringBuilder builder = new StringBuilder();
+                builder.append(time);
+                builder.append(",");
+                String s = Base64.encodeBytes(data);
+                s = s.replaceAll("\n", "");
+                builder.append(s);
+
+                String day = time.substring(0, 8);
+                if (res.get(day) == null) {
+                    List<String> list = new ArrayList<>();
+                    list.add(builder.toString());
+                    res.put(day, list);
+                } else {
+                    res.get(day).add(builder.toString());
                 }
-                if (res.length() > 0) {
-                    res.deleteCharAt(res.length() - 1);
+            }
+
+            for (Map.Entry<String, List<String>> entry : res.entrySet()) {
+                String day = entry.getKey();
+                String fileName = properties.getProperty("result.file.path") + "/" + day.substring(0, 4) + "/" + day.substring(4, 6) + "/" + day.substring(6, 8) + "/" + vidVin[1];
+                File file = new File(fileName);
+                if (!file.getParentFile().exists()) {
+                    boolean b = file.getParentFile().mkdirs();
                 }
-                IOUtils.write(res.toString() + "\n", fileWriter);
+                System.out.println(file.getAbsolutePath());
+                FileWriter fileWriter = new FileWriter(file);
+                IOUtils.writeLines(entry.getValue(), "\n", fileWriter);
+                fileWriter.flush();
+                fileWriter.close();
             }
             System.out.println(vin);
-            fileWriter.flush();
-            fileWriter.close();
         }
     }
 }

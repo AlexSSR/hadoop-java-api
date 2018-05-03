@@ -60,8 +60,14 @@ public class TestHBase {
 
             ResultScanner scanner = table.getScanner(scan);
             for (Result result : scanner) {
-                String time = new String(result.getValue("cf".getBytes(), "stime".getBytes()));
+                byte[] sTime = result.getValue("cf".getBytes(), "stime".getBytes());
                 byte[] data = result.getValue("cf".getBytes(), "data".getBytes());
+
+                if (sTime == null || data == null) {
+                    continue;
+                }
+
+                String time = new String(sTime);
 
                 StringBuilder builder = new StringBuilder();
                 builder.append(time);
@@ -87,7 +93,6 @@ public class TestHBase {
                 if (!file.getParentFile().exists()) {
                     boolean b = file.getParentFile().mkdirs();
                 }
-                System.out.println(file.getAbsolutePath());
                 FileWriter fileWriter = new FileWriter(file);
                 IOUtils.writeLines(entry.getValue(), "\n", fileWriter);
                 fileWriter.flush();

@@ -1,0 +1,17 @@
+# 获取所有目录
+find res/ -mindepth 3 -type d|sort
+
+
+#!/bin/bash
+
+while read fpath; do
+  wpath="$(dirname $fpath)";
+  dpath="$(basename $fpath)";
+  zfile="${fpath}.tar.gz"
+
+  tar zcvf "$zfile" -C "$wpath" "$dpath";
+done
+
+
+# 遍历目录进行压缩
+cat /home/dev/export/fn.txt | /home/dev/export/ziplog

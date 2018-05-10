@@ -13,6 +13,7 @@ import java.util.Properties;
  * Created by IntelliJ IDEA.
  * User: zhaogd
  * Date: 2017/9/25
+ * @author zhaogd
  */
 public class PropertiesUtil {
     private static final Logger logger = LogManager.getLogger(PropertiesUtil.class);

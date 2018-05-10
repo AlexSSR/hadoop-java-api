@@ -20,7 +20,7 @@ import java.util.*;
  * @author zhaogd
  * @Date 2018/4/23
  */
-public class TestHBase {
+public class ExportPacket {
 
     private static Connection connection = null;
     private static Properties properties = null;
@@ -54,6 +54,7 @@ public class TestHBase {
             Scan scan = new Scan();
             scan.setStartRow((vidVin[0] + "_" + properties.getProperty("start.row.timestamp")).getBytes());
             scan.setStopRow((vidVin[0] + "_" + properties.getProperty("stop.row.timestamp")).getBytes());
+            scan.setMaxVersions(20);
 
             scan.addColumn("cf".getBytes(), "stime".getBytes());
             scan.addColumn("cf".getBytes(), "data".getBytes());

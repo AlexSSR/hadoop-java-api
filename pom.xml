@@ -100,7 +100,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.bitnei.main.TestHBase</mainClass>
+                            <mainClass></mainClass>
                         </manifest>
                     </archive>
                 </configuration>

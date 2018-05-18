@@ -7,6 +7,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,6 +25,8 @@ import java.util.Properties;
  * @Date 2018/5/10
  */
 public class ExportLastMileage {
+
+    private static final Logger logger = LogManager.getLogger(ExportLastMileage.class);
 
     private static Connection connection = null;
     private static Properties properties = null;
@@ -59,7 +63,17 @@ public class ExportLastMileage {
             String licensePlate = fields[2];
             String iccid = fields.length != 4 ? "" : fields[3];
 
-            Map<String, String> data = getData(vid);
+            Map<String, String> data = null;
+            try {
+                data = getData(vid);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error(info);
+            }
+
+            if (data == null) {
+                continue;
+            }
 
             String result = licensePlate +
                     BLANK_SPACE +
@@ -93,6 +107,7 @@ public class ExportLastMileage {
         scan.setStopRow((vid + "_" + properties.getProperty("start.row.timestamp")).getBytes());
         scan.setMaxVersions(20);
         scan.setReversed(true);
+        scan.setCaching(20);
 
         scan.addColumn("cf".getBytes(), "2000".getBytes());
         scan.addColumn("cf".getBytes(), "2202".getBytes());
@@ -132,9 +147,9 @@ public class ExportLastMileage {
             byte[] lon = result.getValue("cf".getBytes(), "2502".getBytes());
             byte[] lat = result.getValue("cf".getBytes(), "2503".getBytes());
 
-            boolean lonIsInvalid = map.get("lon") == null || "0.0".equals(map.get("lon"));
-            boolean latIsInvalid = map.get("lat") == null || "0.0".equals(map.get("lat"));
-            if (lon != null && lat != null && lonIsInvalid && latIsInvalid) {
+            boolean lonIsInvalid = lon == null || "0".equals(new String(lon));
+            boolean latIsInvalid = lat == null || "0".equals(new String(lat));
+            if (!lonIsInvalid && !latIsInvalid && map.get("lon") == null && map.get("lat") == null) {
                 String lonString = new String(lon);
                 String latString = new String(lat);
                 if (!StringUtils.isAnyBlank(lonString, latString)) {

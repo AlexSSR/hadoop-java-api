@@ -1,10 +1,6 @@
 package com.zhaogd.test;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,13 +10,31 @@ import java.util.Date;
 public class Test {
 
     public static void main(String[] args) {
-        Date date = new Date();
-        System.out.println(date);
-        String s = JSON.toJSONString(date, SerializerFeature.UseISO8601DateFormat);
-        System.out.println(s);
+//        Date date = new Date();
+//        System.out.println(date);
+//        String s = JSON.toJSONString(date, SerializerFeature.UseISO8601DateFormat);
+//        System.out.println(s);
+//
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+//
+//        System.out.println(simpleDateFormat.format(date));
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+        String s = "IyMB/kxHSEM0VjFENUhFMjAxMDIwAQAeEgENCAAVAAg4OTg2MDExNzc5NTkxMDE0ODkyOQEAwA==";
+        String s1 = convert16HexStr(Base64.decodeBase64(s));
+        System.out.println(s1);
+    }
 
-        System.out.println(simpleDateFormat.format(date));
+    /**
+     * byte数组转换为十六进制的字符串
+     * **/
+    public static String convert16HexStr(byte [] b)
+    {
+        StringBuilder result = new StringBuilder();
+        for (byte aB : b) {
+            if ((aB & 0xff) < 0x10)
+                result.append("0");
+            result.append(Long.toString(aB & 0xff, 16));
+        }
+        return result.toString().toUpperCase();
     }
 }

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -68,22 +69,23 @@ public class ExportPacket {
                     continue;
                 }
 
-                String time = new String(sTime);
+                String terminalTime = new String(result.getRow()).split("_")[1];
+                Date date = new Date(Long.valueOf(terminalTime));
+                String terminalTimeFormat = new SimpleDateFormat("yyyyMMdd").format(date);
 
                 StringBuilder builder = new StringBuilder();
-                builder.append(time);
+                builder.append(new String(sTime));
                 builder.append(",");
                 String s = Base64.encodeBytes(data);
                 s = s.replaceAll("\n", "");
                 builder.append(s);
 
-                String day = time.substring(0, 8);
-                if (res.get(day) == null) {
+                if (res.get(terminalTimeFormat) == null) {
                     List<String> list = new ArrayList<>();
                     list.add(builder.toString());
-                    res.put(day, list);
+                    res.put(terminalTimeFormat, list);
                 } else {
-                    res.get(day).add(builder.toString());
+                    res.get(terminalTimeFormat).add(builder.toString());
                 }
             }
 

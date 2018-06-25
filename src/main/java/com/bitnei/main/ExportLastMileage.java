@@ -68,7 +68,7 @@ public class ExportLastMileage {
                 data = getData(vid);
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.error(info);
+                logger.error(info, e);
             }
 
             if (data == null) {

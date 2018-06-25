@@ -1,12 +1,12 @@
 package com.bitnei.main;
 
 import com.bitnei.core.util.PropertiesUtil;
-import net.iharder.base64.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.util.Base64;
 
 import java.io.File;
 import java.io.FileInputStream;

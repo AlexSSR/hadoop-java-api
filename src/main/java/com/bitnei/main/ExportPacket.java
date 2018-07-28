@@ -3,6 +3,8 @@ package com.bitnei.main;
 import com.bitnei.core.util.PropertiesUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -62,30 +64,46 @@ public class ExportPacket {
 
             ResultScanner scanner = table.getScanner(scan);
             for (Result result : scanner) {
-                byte[] sTime = result.getValue("cf".getBytes(), "stime".getBytes());
-                byte[] data = result.getValue("cf".getBytes(), "data".getBytes());
+                final List<Cell> timeCells = result.getColumnCells("cf".getBytes(), "stime".getBytes());
+                final List<Cell> dataCells = result.getColumnCells("cf".getBytes(), "data".getBytes());
 
-                if (sTime == null || data == null) {
-                    continue;
-                }
+                while (!timeCells.isEmpty() && !dataCells.isEmpty()){
+                    final Cell timeCell = timeCells.get(0);
+                    final Cell dataCell = dataCells.get(0);
 
-                String terminalTime = new String(result.getRow()).split("_")[1];
-                Date date = new Date(Long.valueOf(terminalTime));
-                String terminalTimeFormat = new SimpleDateFormat("yyyyMMdd").format(date);
+                    if (timeCell == null || dataCell == null) {
+                        continue;
+                    }
 
-                StringBuilder builder = new StringBuilder();
-                builder.append(new String(sTime));
-                builder.append(",");
-                String s = Base64.encodeBytes(data);
-                s = s.replaceAll("\n", "");
-                builder.append(s);
+                    byte[] sTime = CellUtil.cloneValue(timeCell);
+                    byte[] data = CellUtil.cloneValue(dataCell);
 
-                if (res.get(terminalTimeFormat) == null) {
-                    List<String> list = new ArrayList<>();
-                    list.add(builder.toString());
-                    res.put(terminalTimeFormat, list);
-                } else {
-                    res.get(terminalTimeFormat).add(builder.toString());
+                    String terminalTime = new String(result.getRow()).split("_")[1];
+                    Date date = new Date(Long.valueOf(terminalTime));
+                    String terminalTimeFormat = new SimpleDateFormat("yyyyMMdd").format(date);
+
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(new String(sTime));
+                    builder.append(",");
+                    String s = Base64.encodeBytes(data);
+                    s = s.replaceAll("\n", "");
+                    builder.append(s);
+
+                    if (res.get(terminalTimeFormat) == null) {
+                        List<String> list = new ArrayList<>();
+                        list.add(builder.toString());
+                        res.put(terminalTimeFormat, list);
+                    } else {
+                        res.get(terminalTimeFormat).add(builder.toString());
+                    }
+
+
+                    if (timeCells.size() != 0) {
+                        timeCells.remove(0);
+                    }
+                    if (dataCells.size() != 0) {
+                        dataCells.remove(0);
+                    }
                 }
             }
 

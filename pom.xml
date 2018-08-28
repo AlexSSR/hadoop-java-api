@@ -16,6 +16,16 @@
             <artifactId>tools</artifactId>
             <version>1.0.14-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.bitnei.bigdata</groupId>
+            <artifactId>datacenter</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.4.2</version>
+        </dependency>
 
         <!-- HBase -->
         <dependency>

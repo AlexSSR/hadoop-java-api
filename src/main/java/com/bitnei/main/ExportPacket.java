@@ -55,8 +55,8 @@ public class ExportPacket {
 
             Table table = getTable("packet");
             Scan scan = new Scan();
-            scan.setStartRow((vidVin[0] + "_" + properties.getProperty("start.row.timestamp")).getBytes());
-            scan.setStopRow((vidVin[0] + "_" + properties.getProperty("stop.row.timestamp")).getBytes());
+            scan.setStartRow((vidVin[1] + "_" + properties.getProperty("start.row.timestamp")).getBytes());
+            scan.setStopRow((vidVin[1] + "_" + properties.getProperty("stop.row.timestamp")).getBytes());
             scan.setMaxVersions(20);
 
             scan.addColumn("cf".getBytes(), "stime".getBytes());
@@ -109,7 +109,7 @@ public class ExportPacket {
 
             for (Map.Entry<String, List<String>> entry : res.entrySet()) {
                 String day = entry.getKey();
-                String fileName = properties.getProperty("result.file.path") + "/" + day.substring(0, 4) + "/" + day.substring(4, 6) + "/" + day.substring(6, 8) + "/" + vidVin[1];
+                String fileName = properties.getProperty("result.file.path") + "/" + day.substring(0, 4) + "/" + day.substring(4, 6) + "/" + day.substring(6, 8) + "/" + vidVin[0];
                 File file = new File(fileName);
                 if (!file.getParentFile().exists()) {
                     boolean b = file.getParentFile().mkdirs();

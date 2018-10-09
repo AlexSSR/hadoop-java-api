@@ -49,7 +49,7 @@ public class DeleteRealinfo {
             String[] fields = vehInfo.split(",");
             String vid = fields[0];
 
-            Table table = getTable("realinfo");
+            Table table = getTable(args[0]);
             Scan scan = new Scan();
             scan.setStartRow((vid + "_" + properties.getProperty("start.row.timestamp")).getBytes());
             scan.setStopRow((vid + "_" + properties.getProperty("stop.row.timestamp")).getBytes());

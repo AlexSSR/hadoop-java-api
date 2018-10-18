@@ -130,7 +130,7 @@ public class ExportLastMileage {
             byte[] mileage = result.getValue("cf".getBytes(), "2202".getBytes());
             if (mileage != null && map.get("mileage") == null) {
                 String s = new String(mileage);
-                if (StringUtils.isNotBlank(s)) {
+                if (StringUtils.isNotBlank(s) && !"0".equals(s)) {
                     map.put("mileage", String.valueOf(Double.parseDouble(s) / 10));
                 }
             }

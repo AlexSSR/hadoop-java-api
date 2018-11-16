@@ -47,7 +47,7 @@ public class DeleteRealinfo {
 
         for (String vehInfo : vehInfos) {
             String[] fields = vehInfo.split(",");
-            String vid = fields[0];
+            String vid = fields[1];
 
             Table table = getTable(args[0]);
             Scan scan = new Scan();
